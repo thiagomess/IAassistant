@@ -2,10 +2,13 @@ package com.gomes.assistant.service;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.gomes.assistant.client.GoogleCalendarClient;
 import com.gomes.assistant.dto.Event;
 import com.gomes.assistant.dto.TimeRange;
 import com.gomes.assistant.util.DataUtils;
@@ -13,31 +16,35 @@ import com.gomes.assistant.util.DataUtils;
 @Service
 public class GoogleCalendarEventService {
 
-    private final GoogleCalendarRestService googleCalendarRestService;
-    private String token = null; // This should be set with a valid OAuth token before use
+    private static final Logger logger = LoggerFactory.getLogger(GoogleCalendarEventService.class);
+
+    private final GoogleCalendarClient googleCalendarRestService;
     @Value("${google.api.calendar-id}")
     private String calendarId;
 
-    public GoogleCalendarEventService(GoogleCalendarRestService googleCalendarRestService) {
+    public GoogleCalendarEventService(GoogleCalendarClient googleCalendarRestService) {
         this.googleCalendarRestService = googleCalendarRestService;
     }
 
     public String createEvent(String jsonData) throws Exception {
-        return googleCalendarRestService.createEvent(token, calendarId, jsonData);
+        logger.info("Criando evento no Google Calendar");
+        return googleCalendarRestService.createEvent(calendarId, jsonData);
     }
 
     public String updateEvent(String eventId, String jsonData) throws Exception {
-        return googleCalendarRestService.updateEvent(token, calendarId, eventId, jsonData);
+        logger.info("Atualizando evento no Google Calendar: {}", eventId);
+        return googleCalendarRestService.updateEvent(calendarId, eventId, jsonData);
     }
 
     public String deleteEvent(String eventId) throws Exception {
-        return googleCalendarRestService.deleteEvent(token, calendarId, eventId);
+        logger.info("Deletando evento no Google Calendar: {}", eventId);
+        return googleCalendarRestService.deleteEvent(calendarId, eventId);
     }
 
     public List<Event> getEvents(TimeRange timeRange) throws Exception {
-        String response = googleCalendarRestService.getEvents(token, calendarId, timeRange.start(), timeRange.end());
+        logger.info("Buscando eventos no intervalo: {}", timeRange);
+        String response = googleCalendarRestService.getEvents(calendarId, timeRange.start(), timeRange.end());
         String itemsJson = DataUtils.extractField(response, "items");
-        
         return DataUtils.parseList(itemsJson, new TypeReference<List<Event>>() {});
     }
 }

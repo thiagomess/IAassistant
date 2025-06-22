@@ -93,6 +93,12 @@
 			<version>v3-rev411-1.25.0</version>
 		</dependency>
 
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-text</artifactId>
+		    <version>1.13.0</version>
+		</dependency>
+
 
 	</dependencies>
 

@@ -1,7 +1,10 @@
 package com.gomes.assistant.util;
 
+import java.text.Normalizer;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.text.similarity.LevenshteinDistance;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -42,6 +45,25 @@ public class DataUtils {
             throw new IllegalArgumentException("Field '" + fieldName + "' not found in JSON");
         }
         return fieldNode.toString();
+    }
+    
+    public static boolean isSimilar(String eventSummary, String eventName) {
+        if (eventSummary == null || eventName == null) {
+            return false;
+        }
+        String normalizedSummary = normalize(eventSummary);
+        String normalizedName = normalize(eventName);
+
+        int distance = LevenshteinDistance.getDefaultInstance().apply(normalizedSummary, normalizedName);
+
+        int maxLength = Math.max(normalizedSummary.length(), normalizedName.length());
+        return distance <= maxLength * 0.3; 
+    }
+
+    private static String normalize(String input) {
+        return Normalizer.normalize(input, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .toLowerCase();
     }
 
 }
