@@ -6,10 +6,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-public class AssistantIaWhatsApplication {
+public class IAassistantApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(AssistantIaWhatsApplication.class, args);
+		SpringApplication.run(IAassistantApplication.class, args);
 	}
 
 }

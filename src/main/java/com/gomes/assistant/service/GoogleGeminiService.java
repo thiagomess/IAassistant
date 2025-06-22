@@ -37,7 +37,7 @@ public class GoogleGeminiService {
 					      - Sempre use o mês e ano atuais: %s de %d.
 					      - Se o usuário não informar o dia, utilize o dia de hoje: %d.
 					      - As datas e horas devem estar no formato ISO 8601, fuso horário "America/Sao_Paulo".
-					      - Se não houver data/hora de fim, defina como 15 minutos após o início.
+					      - Se não houver data/hora de fim, defina como 30 minutos após o início.
 					      - Se não houver recorrência, use "recurrence": [].
 					      - Campos sem informação devem ser preenchidos com "" (string vazia), listas vazias ou valores padrão.
 					      - Use o campo "attendees" para adicionar participantes, se necessário adicione dentro do attendees como um objeto {"email": ""} com o email informado preenchido.
