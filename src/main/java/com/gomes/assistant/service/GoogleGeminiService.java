@@ -234,8 +234,8 @@ public class GoogleGeminiService {
 					 - Utilize as informações do JSON para responder ao usuário de forma clara e objetiva.
 					 - Quando for informar a data sempre use o formato: %d %s de %d.
 					 - Se o usuário fizer perguntas sobre o evento, responda com as informações do evento agendado.
+					 - Responda ao usuário de forma clara e objetiva, utilizando as informações acima.
 					 - A resposta será enviada via WhatsApp, portanto mantenha o tom adequado para essa plataforma.
-
 					""",
 			dia, mesExtenso, ano);
 
@@ -253,15 +253,12 @@ public class GoogleGeminiService {
 
 	public String geminiResponse(String request, String response) {
 	    String formattedPrompt = String.format("""
-	        Você é um assistente especializado em gerenciar agendas no Google Calendar.
-	        Você recebeu a seguinte solicitação:
-	        Request: %s
+			Solicitação do usuário:
+			%s
 
-	        E a seguinte resposta foi gerada:
-	        Response: %s
-
-	        Responda ao usuário de forma clara e objetiva, utilizando as informações acima.
-	        """, request, response);
+			Resposta gerada:
+			%s
+			""", request, response);
 
 	    Prompt prompt = new Prompt(List.of(new SystemMessage(systemPromptResponse), new UserMessage(formattedPrompt)));
 	    return chatModel.call(prompt).getResult().getOutput().getText();
