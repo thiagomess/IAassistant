@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.gomes.assistant.dto.ErrorResponse;
+import io.jsonwebtoken.security.SignatureException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -22,7 +23,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex) {
         logger.warn("Tentativa de login com credenciais inválidas: {}", ex.getMessage());
-        ErrorResponse error = new ErrorResponse("UNAUTHORIZED", "Usuário ou senha inválidos. Por favor, tente novamente.");
+        ErrorResponse error = new ErrorResponse("UNAUTHORIZED",
+                "Usuário ou senha inválidos. Por favor, tente novamente.");
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(error);
@@ -31,7 +33,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception ex) {
         logger.error("Erro inesperado: ", ex);
-        ErrorResponse error = new ErrorResponse("INTERNAL_SERVER_ERROR", "Desculpe, tive um problema ao realizar a sua requisição");
+        ErrorResponse error = new ErrorResponse("INTERNAL_SERVER_ERROR",
+                "Desculpe, tive um problema ao realizar a sua requisição");
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(error);
@@ -46,9 +49,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
         String msg = ex.getBindingResult().getFieldErrors().stream()
-            .map(e -> e.getField() + ": " + e.getDefaultMessage())
-            .findFirst()
-            .orElse("Dados inválidos.");
+                .map(e -> e.getField() + ": " + e.getDefaultMessage())
+                .findFirst()
+                .orElse("Dados inválidos.");
         ErrorResponse error = new ErrorResponse("VALIDATION_ERROR", msg);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
@@ -61,7 +64,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(WebClientResponseException.class)
     public ResponseEntity<ErrorResponse> handleWebClientResponse(WebClientResponseException ex) {
-        ErrorResponse error = new ErrorResponse("EXTERNAL_API_ERROR", "Erro ao comunicar com serviço externo: " + ex.getStatusText());
+        ErrorResponse error = new ErrorResponse("EXTERNAL_API_ERROR",
+                "Erro ao comunicar com serviço externo: " + ex.getStatusText());
         return ResponseEntity.status(ex.getStatusCode()).body(error);
     }
 
@@ -75,5 +79,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleUnsupportedOperation(UnsupportedOperationException ex) {
         ErrorResponse error = new ErrorResponse("UNSUPPORTED_OPERATION", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(SignatureException.class)
+    public ResponseEntity<ErrorResponse> handleJwtSignatureException(SignatureException ex) {
+        logger.warn("Token JWT com assinatura inválida: {}", ex.getMessage());
+        ErrorResponse error = new ErrorResponse("INVALID_TOKEN", "Token JWT  ou corrompido.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 }

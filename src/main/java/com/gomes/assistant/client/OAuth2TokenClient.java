@@ -56,7 +56,8 @@ public class OAuth2TokenClient {
             if (response != null && response.refresh_token() != null) {
                 refreshToken = response.refresh_token(); 
             }
-            logger.info("Token trocado com sucesso: {}", tokenInMemory.get());
+            logger.debug("Token trocado com sucesso: {}", tokenInMemory.get());
+            logger.info("Token trocado com sucesso");
         } catch (WebClientResponseException e) {
             logger.error("Erro ao trocar código por token - Status: {}, Resposta: {}", e.getStatusCode(), e.getResponseBodyAsString());
             throw e;
@@ -72,7 +73,8 @@ public class OAuth2TokenClient {
                     .bodyToMono(TokenResponse.class)
                                         .block();
             tokenInMemory = Optional.ofNullable(response);
-            logger.info("Token renovado com sucesso: {}", tokenInMemory.get());
+            logger.debug("Token renovado com sucesso: {}", tokenInMemory.get());
+            logger.info("Token renovado com sucesso");
         } catch (WebClientResponseException e) {
             logger.error("Erro ao renovar token - Status: {}, Resposta: {}", e.getStatusCode(), e.getResponseBodyAsString());
             throw e;
