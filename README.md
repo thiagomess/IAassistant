@@ -8,8 +8,12 @@ Este projeto é um assistente inteligente para gerenciamento de agendas no Googl
 - **Busca, atualização e cancelamento** de eventos.
 - **Cancelamento em massa** de eventos em um período.
 - **Respostas claras e personalizadas** ao usuário.
+- **Autenticação JWT** para proteger os endpoints da API.
+- **Login seguro** com validação de credenciais e tratamento de erros amigável.
+- **Fluxo OAuth2** para integração segura com o Google Calendar.
+- **Renovação automática do token OAuth2** via agendamento.
+- **Tratamento global de exceções** com respostas JSON padronizadas.
 - **Logs detalhados** para observabilidade e troubleshooting.
-- **Tratamento global de exceções** com mensagens amigáveis.
 
 ## Como funciona
 
@@ -17,10 +21,11 @@ Este projeto é um assistente inteligente para gerenciamento de agendas no Googl
 2. O sistema utiliza IA (Gemini) para interpretar o comando e gerar um JSON estruturado.
 3. A ação é executada no Google Calendar via API oficial.
 4. O usuário recebe uma resposta clara sobre o resultado da operação.
+5. O acesso à API é protegido por autenticação JWT, obtida via login no endpoint `/auth/login`.
 
 ## Estrutura do Projeto
 
-- `controller/` - Endpoints REST.
+- `controller/` - Endpoints REST (incluindo autenticação e OAuth2).
 - `service/` - Lógica de negócio, integração com IA e Google Calendar.
 - `client/` - Clientes HTTP para APIs externas.
 - `exception/` - Handler global de exceções.
@@ -28,6 +33,7 @@ Este projeto é um assistente inteligente para gerenciamento de agendas no Googl
 - `dto/` - Objetos de transferência de dados (DTOs).
 - `config/` - Configurações do projeto.
 - `schedule/` - Agendamento de tarefas automáticas (ex: renovação de token).
+- `security/` - Configuração de autenticação, filtros JWT e utilitários de segurança.
 
 ## Pré-requisitos
 
@@ -54,6 +60,9 @@ Este projeto é um assistente inteligente para gerenciamento de agendas no Googl
    GOOGLE_CALENDAR_ID=SeuCalendarId
    GOOGLE_CLIENT_ID=SeuClientId
    GOOGLE_CLIENT_SECRET=SeuClientSecret
+   APP_AUTH_USERNAME=SeuUsuario
+   APP_AUTH_PASSWORD=SenhaCriptografadaBCrypt
+   JWT_SECRET=ChaveJWTSecreta
    ```
 
    Ou edite o arquivo `src/main/resources/application.properties` conforme necessário.
@@ -81,16 +90,43 @@ Este projeto é um assistente inteligente para gerenciamento de agendas no Googl
 
    ```txt
    https://accounts.google.com/o/oauth2/v2/auth?client_id={{GOOGLE_CLIENT_ID}}&redirect_uri=http://localhost:8080/api/oauth2/callback&response_type=code&scope=https://www.googleapis.com/auth/calendar&access_type=offline&prompt=consent
-   ````
+   ```
 
-4. **Utilize o endpoint `/chat`:**
+4. **Realize login para obter o JWT:**
+   - Faça uma requisição POST para `http://localhost:8080/auth/login` com o seguinte corpo:
+     ```json
+     {
+       "username": "SeuUsuario",
+       "password": "SuaSenha"
+     }
+     ```
+   - O token JWT será retornado e deve ser usado no header `Authorization` das próximas requisições.
+
+5. **Utilize o endpoint `/chat`:**
    - Faça uma requisição POST para `http://localhost:8080/chat` com o seguinte corpo:
      ```json
      {
        "message": "Agendar reunião amanhã às 15h"
      }
      ```
+   - Inclua o header `Authorization: Bearer <seu_token_jwt>`.
    - Você receberá uma resposta clara sobre o resultado da operação.
+
+## Tratamento de Erros
+
+Todas as respostas de erro seguem o padrão:
+```json
+{
+  "error": "CÓDIGO_DO_ERRO",
+  "message": "Mensagem amigável explicando o problema."
+}
+```
+Exemplos de erros tratados:
+- Credenciais inválidas
+- Usuário não encontrado
+- Dados inválidos na requisição
+- Erros de integração com serviços externos
+- Operações não suportadas
 
 ## Testes
 
