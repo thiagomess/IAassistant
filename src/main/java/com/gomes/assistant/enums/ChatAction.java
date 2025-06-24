@@ -1,7 +1,7 @@
 package com.gomes.assistant.enums;
 
 public enum ChatAction {
-    CREATE, UPDATE, CANCEL, CANCEL_ALL, SEARCH;
+    CREATE, UPDATE, CANCEL, CANCEL_ALL, SEARCH, QUESTION;
 
     public static ChatAction fromString(String action) {
         try {

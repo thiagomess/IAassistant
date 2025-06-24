@@ -208,9 +208,9 @@ public class GoogleGeminiService {
 					      - Considere o data final sempre com 1 dia a mais a partir da data inicial, caso não seja informado pelo usuário.
 
 					         {
-					             "action": "CANCEL_ALL",
+					            "action": "CANCEL_ALL",
 					            "dataInitial": "2025-06-19T15:00:00-03:00",
-					             "dataFinal: "2025-06-19T15:00:00-03:00",
+					            "dataFinal: "2025-06-19T15:00:00-03:00",
 					         }
 
 					      Exemplos de comandos do usuário e resposta esperada:
@@ -220,6 +220,15 @@ public class GoogleGeminiService {
 					      - "Cancelar o evento 'Reunião de equipe'"
 					      - "Pesquisar eventos para a semana que vem"
 					      - "Quando será o evento 'Reunião de equipe'"
+					      
+					      6. Se o usuario fizer qualquer outro tipo de pergunta, diferente das ações acima, gere o payload abaixo:
+					      	- Usuário: Que dia é hoje?
+					      	- Usuário: Olá, tudo bem?
+					         {
+					            "action": "Question",
+					            "dataInitial": "2025-06-19T15:00:00-03:00",
+					            "dataFinal: "2025-06-19T15:00:00-03:00",
+					         }
 
 					      Responda apenas com o JSON, sem crases, sem markdown e sem explicações.
 					      """,
@@ -235,7 +244,9 @@ public class GoogleGeminiService {
 			        - Utilize as informações do JSON para responder ao usuário de forma adequada, informando sobre o evento agendado.
 			        - Quando for informar a data sempre use o formato: %d %s de %d.
 			        - Se o usuário fizer perguntas sobre o evento, responda com as informações do evento agendado.
-			        - Responda ao usuário, utilizando as informações acima.
+			        - Caso o usuário faça perguntas gerais (não relacionadas a eventos), responda de forma clara e objetiva, utilizando seu conhecimento para fornecer uma resposta útil.
+			        - Se a pergunta for sobre o funcionamento do Google Calendar, explique de forma breve e direta.
+			        - Caso a mensagem seja uma saudação ou algo sem contexto claro, responda com uma saudação amigável e informe que você está aqui para ajudar com agendamentos no Google Calendar.
 			        - A resposta será enviada via WhatsApp, portanto mantenha o tom adequado para essa plataforma.
 			        """,
 			dia, mesExtenso, ano);
