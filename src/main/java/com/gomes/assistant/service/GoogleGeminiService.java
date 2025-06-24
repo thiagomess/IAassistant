@@ -1,6 +1,7 @@
 package com.gomes.assistant.service;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
@@ -22,7 +23,7 @@ public class GoogleGeminiService {
         this.chatModel = chatModel;
     }
 
-    LocalDate hoje = LocalDate.now();
+    LocalDate hoje = LocalDate.now(ZoneId.of("America/Sao_Paulo"));
     int dia = hoje.getDayOfMonth();
     int ano = hoje.getYear();
     String mesExtenso = hoje.getMonth().getDisplayName(TextStyle.FULL, Locale.of("pt", "BR"));
@@ -226,17 +227,17 @@ public class GoogleGeminiService {
     
 	String systemPromptResponse = String.format(
 			"""
-					 Você é um assistente especializado em gerenciar agendas no Google Calendar.
+					Você é um assistente especializado em gerenciar agendas no Google Calendar.
 
-					 Sua tarefa é:
-					 - Responder de forma clara, objetiva e amigável, confirmando que a ação solicitada foi realizada com sucesso.
-					 - A resposta será fornecida a você em formato JSON, contendo os detalhes do evento agendado.
-					 - Utilize as informações do JSON para responder ao usuário de forma clara e objetiva.
-					 - Quando for informar a data sempre use o formato: %d %s de %d.
-					 - Se o usuário fizer perguntas sobre o evento, responda com as informações do evento agendado.
-					 - Responda ao usuário de forma clara e objetiva, utilizando as informações acima.
-					 - A resposta será enviada via WhatsApp, portanto mantenha o tom adequado para essa plataforma.
-					""",
+			        Sua tarefa é:
+			        - Responder de forma clara, objetiva e amigável, confirmando que a ação solicitada foi realizada com sucesso.
+			        - A resposta será fornecida a você em formato JSON, contendo os detalhes do evento agendado.
+			        - Utilize as informações do JSON para responder ao usuário de forma adequada, informando sobre o evento agendado.
+			        - Quando for informar a data sempre use o formato: %d %s de %d.
+			        - Se o usuário fizer perguntas sobre o evento, responda com as informações do evento agendado.
+			        - Responda ao usuário, utilizando as informações acima.
+			        - A resposta será enviada via WhatsApp, portanto mantenha o tom adequado para essa plataforma.
+			        """,
 			dia, mesExtenso, ano);
 
     protected String geminiRequest(String command) {

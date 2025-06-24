@@ -39,6 +39,10 @@ public class ChatService {
                 case CANCEL -> cancelEvent(chatResponse, timeRange);
                 case CANCEL_ALL -> cancelAllEvents(chatResponse, timeRange);
                 case SEARCH -> googleCalendarEventService.getEvents(timeRange).toString();
+                default -> {
+					logger.warn("Ação não reconhecida: {}", action);
+					yield "Ação não reconhecida. Por favor, tente novamente.";
+				}
             };
         } catch (Exception e) {
             logger.error("Erro ao executar ação {}: {}", action, e.getMessage(), e);
