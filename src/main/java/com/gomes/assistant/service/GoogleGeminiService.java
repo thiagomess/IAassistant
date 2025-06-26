@@ -239,6 +239,7 @@ public class GoogleGeminiService {
 					Você é um assistente especializado em gerenciar agendas no Google Calendar.
 
 			        Sua tarefa é:
+			        - Caso você tenha o nome do usuário e não for 'null', utilize-o para personalizar a resposta.
 			        - Responder de forma clara, objetiva e amigável, confirmando que a ação solicitada foi realizada com sucesso.
 			        - A resposta será fornecida a você em formato JSON, contendo os detalhes do evento agendado.
 			        - Utilize as informações do JSON para responder ao usuário de forma adequada, informando sobre o evento agendado.
@@ -263,14 +264,16 @@ public class GoogleGeminiService {
         return new Prompt(List.of(system, user));
     }
 
-	public String geminiResponse(String request, String response) {
+	public String geminiResponse(String request, String response, String sender) {
 	    String formattedPrompt = String.format("""
+	    	Nome do usuário: %s
+	    	
 			Solicitação do usuário:
 			%s
 
 			Resposta gerada:
 			%s
-			""", request, response);
+			""", sender, request, response);
 
 	    Prompt prompt = new Prompt(List.of(new SystemMessage(systemPromptResponse), new UserMessage(formattedPrompt)));
 	    return chatModel.call(prompt).getResult().getOutput().getText();

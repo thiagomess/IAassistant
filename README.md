@@ -7,6 +7,10 @@ Este projeto é um assistente inteligente para gerenciamento de agendas no Googl
 - **Criação de eventos** no Google Calendar via comandos em linguagem natural.
 - **Busca, atualização e cancelamento** de eventos.
 - **Cancelamento em massa** de eventos em um período.
+- **Integração com WhatsApp** via webhook para receber e responder mensagens automaticamente.
+- **Processamento assíncrono** de mensagens para melhor performance.
+- **Respostas personalizadas** baseadas no nome do usuário e contexto da conversa.
+- **Suporte a perguntas gerais** além do gerenciamento de agenda.
 - **Respostas claras e personalizadas** ao usuário.
 - **Autenticação JWT** para proteger os endpoints da API.
 - **Login seguro** com validação de credenciais e tratamento de erros amigável.
@@ -17,11 +21,12 @@ Este projeto é um assistente inteligente para gerenciamento de agendas no Googl
 
 ## Como funciona
 
-1. O usuário envia um comando (ex: "Agendar reunião amanhã às 15h") para o endpoint `/chat`.
+1. O usuário envia um comando (ex: "Agendar reunião amanhã às 15h") para o endpoint `/chat` ou via WhatsApp.
 2. O sistema utiliza IA (Gemini) para interpretar o comando e gerar um JSON estruturado.
 3. A ação é executada no Google Calendar via API oficial.
 4. O usuário recebe uma resposta clara sobre o resultado da operação.
 5. O acesso à API é protegido por autenticação JWT, obtida via login no endpoint `/auth/login`.
+6. **Integração WhatsApp**: Mensagens recebidas via webhook são processadas assincronamente e as respostas são enviadas automaticamente.
 
 ## Estrutura do Projeto
 
@@ -42,6 +47,7 @@ Este projeto é um assistente inteligente para gerenciamento de agendas no Googl
 - Conta Google com acesso ao Google Calendar API
 - Credenciais do Google OAuth2 (Client ID, Client Secret)
 - Chave de API do Gemini (Google AI)
+- **Conta Green API** (para integração com WhatsApp) - opcional
 
 ## Configuração
 
@@ -53,9 +59,7 @@ Este projeto é um assistente inteligente para gerenciamento de agendas no Googl
 
 2. **Configure as variáveis de ambiente:**
 
-   Crie um arquivo `.env` ou defina as variáveis no seu sistema:
-
-   ```
+   Crie um arquivo `.env` ou defina as variáveis no seu sistema:   ```
    OPENAI_API_KEY=SuaChaveGemini
    GOOGLE_CALENDAR_ID=SeuCalendarId
    GOOGLE_CLIENT_ID=SeuClientId
@@ -63,6 +67,8 @@ Este projeto é um assistente inteligente para gerenciamento de agendas no Googl
    APP_AUTH_USERNAME=SeuUsuario
    APP_AUTH_PASSWORD=SenhaCriptografadaBCrypt
    JWT_SECRET=ChaveJWTSecreta
+   GREENAPI_INSTANCE_ID=SeuInstanceId
+   GREENAPI_TOKEN=SeuToken
    ```
 
    Ou edite o arquivo `src/main/resources/application.properties` conforme necessário.
@@ -103,14 +109,38 @@ Este projeto é um assistente inteligente para gerenciamento de agendas no Googl
    - O token JWT será retornado e deve ser usado no header `Authorization` das próximas requisições.
 
 5. **Utilize o endpoint `/chat`:**
-   - Faça uma requisição POST para `http://localhost:8080/chat` com o seguinte corpo:
-     ```json
+   - Faça uma requisição POST para `http://localhost:8080/chat` com o seguinte corpo:     ```json
      {
        "message": "Agendar reunião amanhã às 15h"
      }
      ```
    - Inclua o header `Authorization: Bearer <seu_token_jwt>`.
    - Você receberá uma resposta clara sobre o resultado da operação.
+
+## Integração WhatsApp
+
+O sistema possui integração completa com WhatsApp através da **[Green API](https://green-api.com/en)**, permitindo:
+
+- **Recebimento automático** de mensagens via webhook
+- **Processamento assíncrono** para melhor performance
+- **Respostas personalizadas** com o nome do usuário
+- **Suporte a todos os comandos** de gerenciamento de agenda
+
+### Configuração do Webhook WhatsApp
+
+1. **Configure o webhook** na Green API apontando para:
+   ```
+   https://seu-dominio.com/chat/webhook
+   ```
+
+2. **Mensagens são processadas automaticamente** e as respostas enviadas diretamente no WhatsApp
+
+3. **Comandos suportados via WhatsApp:**
+   - "Agendar reunião amanhã às 15h"
+   - "Quais meus compromissos de hoje?"
+   - "Cancelar evento Reunião de equipe"
+   - "Cancelar todos os eventos de amanhã"
+   - Perguntas gerais e saudações
 
 ## Tratamento de Erros
 
