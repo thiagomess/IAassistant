@@ -23,12 +23,18 @@ public class GoogleGeminiService {
         this.chatModel = chatModel;
     }
 
-    LocalDate hoje = LocalDate.now(ZoneId.of("America/Sao_Paulo"));
-    int dia = hoje.getDayOfMonth();
-    int ano = hoje.getYear();
-    String mesExtenso = hoje.getMonth().getDisplayName(TextStyle.FULL, Locale.of("pt", "BR"));
+    private DateInfo getCurrentDateInfo() {
+        LocalDate hoje = LocalDate.now(ZoneId.of("America/Sao_Paulo"));
+        int dia = hoje.getDayOfMonth();
+        int ano = hoje.getYear();
+        String mesExtenso = hoje.getMonth().getDisplayName(TextStyle.FULL, Locale.of("pt", "BR"));
+        return new DateInfo(dia, ano, mesExtenso);
+    }
 
-	String systemPromptRequest = String.format(
+    private String getSystemPromptRequest() {
+        DateInfo dateInfo = getCurrentDateInfo();
+        
+        return String.format(
 			"""
 					      Você é um assistente especializado em gerenciar agendas no Google Calendar.
 
@@ -228,13 +234,15 @@ public class GoogleGeminiService {
 					            "action": "Question",
 					            "dataInitial": "2025-06-19T15:00:00-03:00",
 					            "dataFinal: "2025-06-19T15:00:00-03:00",
-					         }
-
-					      Responda apenas com o JSON, sem crases, sem markdown e sem explicações.
-					      """,
-			mesExtenso, ano, dia);
+					         }			      Responda apenas com o JSON, sem crases, sem markdown e sem explicações.
+			      """,
+			dateInfo.mesExtenso(), dateInfo.ano(), dateInfo.dia());
+    }
     
-	String systemPromptResponse = String.format(
+    private String getSystemPromptResponse() {
+        DateInfo dateInfo = getCurrentDateInfo();
+        
+        return String.format(
 			"""
 					Você é um assistente especializado em gerenciar agendas no Google Calendar.
 
@@ -247,10 +255,12 @@ public class GoogleGeminiService {
 			        - Se o usuário fizer perguntas sobre o evento, responda com as informações do evento agendado.
 			        - Caso o usuário faça perguntas gerais (não relacionadas a eventos), responda de forma clara e objetiva, utilizando seu conhecimento para fornecer uma resposta útil.
 			        - Se a pergunta for sobre o funcionamento do Google Calendar, explique de forma breve e direta.
-			        - Caso a mensagem seja uma saudação ou algo sem contexto claro, responda com uma saudação amigável e informe que você está aqui para ajudar com agendamentos no Google Calendar.
-			        - A resposta será enviada via WhatsApp, portanto mantenha o tom adequado para essa plataforma.
-			        """,
-			dia, mesExtenso, ano);
+			        - Caso a mensagem seja uma saudação ou algo sem contexto claro, responda com uma saudação amigável e informe que você está aqui para ajudar com agendamentos no Google Calendar.	        - A resposta será enviada via WhatsApp, portanto mantenha o tom adequado para essa plataforma.
+	        """,
+	        dateInfo.dia(), dateInfo.mesExtenso(), dateInfo.ano());
+    }
+
+    private record DateInfo(int dia, int ano, String mesExtenso) {}
 
     protected String geminiRequest(String command) {
         Prompt prompt = buildPrompt(command);
@@ -259,7 +269,7 @@ public class GoogleGeminiService {
     }
 
     private Prompt buildPrompt(String message) {
-        SystemMessage system = new SystemMessage(systemPromptRequest);
+        SystemMessage system = new SystemMessage(getSystemPromptRequest());
         UserMessage user = new UserMessage(message);
         return new Prompt(List.of(system, user));
     }
@@ -275,7 +285,7 @@ public class GoogleGeminiService {
 			%s
 			""", sender, request, response);
 
-	    Prompt prompt = new Prompt(List.of(new SystemMessage(systemPromptResponse), new UserMessage(formattedPrompt)));
+	    Prompt prompt = new Prompt(List.of(new SystemMessage(getSystemPromptResponse()), new UserMessage(formattedPrompt)));
 	    return chatModel.call(prompt).getResult().getOutput().getText();
 	}
 }
